@@ -1,9 +1,20 @@
 from pydantic import BaseModel
-from typing import Optional
+
 
 class Tweet(BaseModel):
     keyword: str
     no_tweet: int
 
-class TweetResponse(BaseModel):
-    tweet: str
+
+class ErrorResponse(BaseModel):
+    status_code: int
+    message: str
+
+
+class WordCloudResponse(BaseModel):
+    query: str
+    total: int
+    image: str
+
+
+
