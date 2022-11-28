@@ -1,0 +1,7 @@
+fastapi
+tweepy
+numpy
+python-dotenv
+Sastrawi
+wordcloud
+aiofiles
