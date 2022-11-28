@@ -1,3 +1,9 @@
+import datetime
+import glob
+import os
+import shutil
+import time
+
 import tweepy
 import re
 import string
@@ -25,10 +31,7 @@ def keyword_search(keyword, no_tweet):
     tweet = remove_stopwords(tweet)
     tweet = remove_emoji(tweet)
 
-    create_wordcloud(tweet, colo_func=multi_color_func)
-
-    return "tmp/wordcloud.png"
-
+    return create_wordcloud(keyword, tweet, colo_func=multi_color_func)
     # data = []
     # for tweet in tweets.data:
     #     data.append({ 'tweet': tweet.text })
@@ -58,7 +61,7 @@ def get_trends_twitter():
 
     trends = api.get_place_trends(id=woeid)
 
-    return trends
+    return trends[0]
 
 
 def create_array(tweets):
@@ -153,7 +156,7 @@ def multi_color_func(word=None, font_size=None,
     return "rgb({}, {}, {})".format(colors[rand][0], colors[rand][1], colors[rand][2])
 
 
-def create_wordcloud(text, colo_func):
+def create_wordcloud(keyword, text, colo_func):
     mask = np.array(Image.open('static/mask.png'))
     stop_factory = StopWordRemoverFactory()
     more_stopword = ['definisi', 'gk', 'kasih', 'dumdum', 'upay', 'Haaa', 'Woyyyy', 'jg', 'lgi', 'hrs', 'yah', 'yg',
@@ -169,4 +172,19 @@ def create_wordcloud(text, colo_func):
                    )
 
     wc.generate(str(text))
-    wc.to_file("/tmp/wordcloud.png")
+    delete_temp_file()
+
+    tweet = re.sub(r'@[A-Za-z0–9]+', '', keyword)  # Removing @mentions
+    tweet = re.sub(r'#', '', tweet)  # Removing '#' hash tag
+    tweet = re.sub(r'RT\s+', '', tweet)  # Removing RT
+    tweet = re.sub(r'https?://\S+', '', tweet)  # Removing hyperlink
+
+    file_dir = "tmp/{}_{}.png".format(tweet, time.time())
+    wc.to_file("/" + file_dir)
+    return file_dir
+
+
+def delete_temp_file():
+    filelist = glob.glob(os.path.join('/tmp', "*.png"))
+    for f in filelist:
+        os.remove(f)
